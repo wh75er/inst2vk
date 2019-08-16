@@ -12,8 +12,7 @@ def initializeConfig(filename):
         try:
             props[param] = eval(value)
         except NameError:
-            print("Value <{}> is invalid(You can use only numbers or booleans)".format(value))
-            exit()
+            print("config warning: Value <{}> is invalid(You can use only numbers or booleans)(ignoring)".format(value))
 
     f.close()
 

@@ -1,7 +1,6 @@
 from args import args
 from config_init import initializeConfig
 from properties import props 
-from test import test
 from export_posts import exportPosts
 
 if __name__ == "__main__":
@@ -10,6 +9,7 @@ if __name__ == "__main__":
     urls_filename = args.urls
 
     initializeConfig(config_filename)
+    print(props)
 
     posts = exportPosts(urls_filename)
     for post in posts:
