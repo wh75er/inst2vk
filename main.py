@@ -9,7 +9,6 @@ if __name__ == "__main__":
     urls_filename = args.urls
 
     initializeConfig(config_filename)
-    print(props)
 
     posts = exportPosts(urls_filename)
     for post in posts:
