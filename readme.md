@@ -5,7 +5,7 @@
 ## Table of Contents
 
 * [Introduction](#introduction)
-* [Как это работает](#how-it-works)
+* [Как это работает](#как-это-работает)
 
 ## Introduction
 
