@@ -1,6 +1,7 @@
 from collections import namedtuple
 from bs4 import BeautifulSoup, SoupStrainer
 import requests, json, lxml
+import time
 import os
 
 Post = namedtuple("Post", ["credits", "pics"])
@@ -55,9 +56,16 @@ def gatherInfoAboutSubOwner(text):
                 
     return _id
 
-def formProfilePosts(jsonPosts, count):
+def getTimeDifference(timestamp):
+    return (float(time.time())-float(timestamp))/(60*60*24)
+
+def formProfilePosts(jsonPosts, count, ignoreTimestamp):
     posts = []
     for postJson in jsonPosts:
+        timestamp = postJson["taken_at_timestamp"]
+        if getTimeDifference(timestamp) > 1 and ignoreTimestamp == False:
+            continue
+
         owner = postJson["owner"]["username"]
         subowner = gatherInfoAboutSubOwner(postJson["edge_media_to_caption"]["edges"][0]["node"]["text"])
         credits = "inst\n@{}\n@{}".format(owner, subowner) if subowner != "" else "inst\n@{}".format(owner)
@@ -70,7 +78,7 @@ def formProfilePosts(jsonPosts, count):
 
     return posts, count
 
-def exportPosts(urls_filename, n):
+def exportPosts(urls_filename, n, ignoreTimestamp):
     posts = []
 
     f = open(urls_filename)
@@ -79,7 +87,7 @@ def exportPosts(urls_filename, n):
     for url in f:
         url = url[:-1]
         profilePostsJson = gatherProfilePosts(url, n)
-        profile_posts, count = formProfilePosts(profilePostsJson, count)
+        profile_posts, count = formProfilePosts(profilePostsJson, count, ignoreTimestamp)
         posts.extend(profile_posts)
 
     f.close()
@@ -87,6 +95,6 @@ def exportPosts(urls_filename, n):
     return posts
 
 if __name__ == "__main__":
-    posts = exportPosts("../urls", 3)
+    posts = exportPosts("../urls", 3, False)
     #for post in posts:
         #print(post)

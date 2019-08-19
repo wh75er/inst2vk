@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     initializeConfig(config_filename)
 
-    posts = exportPosts(urls_filename, props["posts_amount"])
+    posts = exportPosts(urls_filename, props["posts_amount"], False)
     for post in posts:
         print(post)
     
