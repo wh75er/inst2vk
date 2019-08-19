@@ -4,6 +4,10 @@ import time
 day = 86400
 hour = 3600
 
+def findTimeIncrement(n):
+    k = 24/n
+    return k*hour
+
 def sendPosts(token_filename, posts):
     current_time = time.time()
     f = open(token_filename, 'r')
@@ -18,13 +22,24 @@ def sendPosts(token_filename, posts):
 
     upload = vk_api.VkUpload(vk_session)
 
-    photo_list = upload.photo_wall(
-        "temp/1.jpg"
-    )
+    n = len(posts)
+    inc = findTimeIncrement(n)
+    publish_time = current_time + 30
+    for post in posts:
+        photos = []
+        
+        for image in post.pics:
+            photos.append("temp/{}.jpg".format(image))
 
-    vk_photo_url = ','.join("photo{owner_id}_{id}".format(**item) for item in photo_list)
+        photo_list = upload.photo_wall(
+            photos
+        )
 
-    vk.wall.post(owner_id=-185664229, attachments=vk_photo_url, message="hello world", publish_date=1566239997)
+        vk_photo_url = ','.join("photo{owner_id}_{id}".format(**item) for item in photo_list)
+
+        vk.wall.post(owner_id=-185664229, attachments=vk_photo_url, message=post.credits, publish_date=publish_time)
+
+        publish_time += inc
     
     return 
 

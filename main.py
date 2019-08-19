@@ -2,7 +2,7 @@ from args import args
 from config_init import initializeConfig
 from properties import props 
 from export_posts import exportPosts
-from send_posts.py import sendPosts
+from send_posts import sendPosts
 import os
 
 if __name__ == "__main__":
