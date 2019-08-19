@@ -10,6 +10,6 @@ if __name__ == "__main__":
 
     initializeConfig(config_filename)
 
-    posts = exportPosts(urls_filename)
+    posts = exportPosts(urls_filename, props["posts_amount"])
     for post in posts:
         print(post)
