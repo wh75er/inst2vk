@@ -71,7 +71,7 @@ def formProfilePosts(jsonPosts, count):
     return posts, count
 
 def exportPosts(urls_filename, n):
-    posts = [Post("@josselin", [1, 2, 3]), Post("@dreammagazine\n@josselin", [4])]
+    posts = []
 
     f = open(urls_filename)
 
