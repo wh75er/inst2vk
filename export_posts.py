@@ -21,7 +21,7 @@ def get_user_data_json(script_tags):
     except:
         print("Something went wrong with json object gathering!")
 
-def gatherProfilePosts(url, n):
+def gatherProfilePosts(url, n, ignoreTimestamp):
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'lxml')
     script_tags = (soup.find_all('script'))
@@ -36,6 +36,9 @@ def gatherProfilePosts(url, n):
         if count >= n:
             break
         if image["__typename"] == "GraphSidecar" or image["__typename"] == "GraphImage":
+            timestamp = image["taken_at_timestamp"]
+            if getTimeDifference(timestamp) > 1 and ignoreTimestamp == False:
+                break
             saved_images.append(image)
             count+=1
 
@@ -59,13 +62,9 @@ def gatherInfoAboutSubOwner(text):
 def getTimeDifference(timestamp):
     return (float(time.time())-float(timestamp))/(60*60*24)
 
-def formProfilePosts(jsonPosts, count, ignoreTimestamp):
+def formProfilePosts(jsonPosts, count):
     posts = []
     for postJson in jsonPosts:
-        timestamp = postJson["taken_at_timestamp"]
-        if getTimeDifference(timestamp) > 1 and ignoreTimestamp == False:
-            continue
-
         owner = postJson["owner"]["username"]
         subowner = gatherInfoAboutSubOwner(postJson["edge_media_to_caption"]["edges"][0]["node"]["text"])
         credits = "inst\n@{}\n@{}".format(owner, subowner) if subowner != "" else "inst\n@{}".format(owner)
@@ -86,8 +85,8 @@ def exportPosts(urls_filename, n, ignoreTimestamp):
     count = 1
     for url in f:
         url = url[:-1]
-        profilePostsJson = gatherProfilePosts(url, n)
-        profile_posts, count = formProfilePosts(profilePostsJson, count, ignoreTimestamp)
+        profilePostsJson = gatherProfilePosts(url, n, ignoreTimestamp)
+        profile_posts, count = formProfilePosts(profilePostsJson, count)
         posts.extend(profile_posts)
 
     f.close()
