@@ -2,6 +2,7 @@ from args import args
 from config_init import initializeConfig
 from properties import props 
 from export_posts import exportPosts
+from send_posts.py import sendPosts
 import os
 
 if __name__ == "__main__":
@@ -14,5 +15,7 @@ if __name__ == "__main__":
     posts = exportPosts(urls_filename, props["posts_amount"], False)
     for post in posts:
         print(post)
+
+    sendPosts(vk_token_filename, posts)
     
-    os.system("rm temp/*.jpg")
+    #os.system("rm temp/*.jpg")
