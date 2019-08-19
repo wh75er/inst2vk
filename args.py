@@ -11,8 +11,8 @@ parser.add_argument("-token", metavar='token-fname', nargs=1,
                     default = "../token",
                     help = "File with required token(VK API).(default: '../token')")
 parser.add_argument("-urls", metavar='file', nargs=1, 
-                    dest = "urls",
-                    default = "urls",
-                    help = "File with all instagram profiles urls.")
+                    dest = "../urls",
+                    default = "../urls",
+                    help = "File with all instagram profiles urls.(default: '../urls')")
 
 args = parser.parse_args()
