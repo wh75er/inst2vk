@@ -1,8 +1,8 @@
 from collections import namedtuple
 from bs4 import BeautifulSoup, SoupStrainer
 import requests, json, lxml
+import os
 
-#only_dev_tags_with_post_class = SoupStrainer("div")#, class_="v1Nh3 kIKUG")
 Post = namedtuple("Post", ["credits", "pics"])
 
 def get_user_data_json(script_tags):
@@ -27,24 +27,63 @@ def gatherProfilePosts(url, n):
     json_obj = get_user_data_json(script_tags)
 
     username = json_obj["entry_data"]["ProfilePage"][0]["graphql"]["user"]["username"]
-    images = json_obj["entry_data"]["ProfilePage"][0]["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]
-    print(images)
-    #print(json_obj)
+    images = json_obj["entry_data"]["ProfilePage"][0]["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"]
+    count = 0
+    saved_images = []
+    for image in images:
+        image = image["node"]
+        if count >= n:
+            break
+        if image["__typename"] == "GraphSidecar" or image["__typename"] == "GraphImage":
+            saved_images.append(image)
+            count+=1
 
+    return saved_images
 
-    return "hello world"
+def gatherInfoAboutSubOwner(text):
+    _id = ""
+    got_id = False
+    for word in text:
+        for sym in word:
+            if got_id == True:
+                if sym not in ["\n", ",", " "]:
+                    _id += sym
+                else:
+                    return _id
+            if sym == "@":
+                got_id = True
+                
+    return _id
+
+def formProfilePosts(jsonPosts, count):
+    posts = []
+    for postJson in jsonPosts:
+        owner = postJson["owner"]["username"]
+        subowner = gatherInfoAboutSubOwner(postJson["edge_media_to_caption"]["edges"][0]["node"]["text"])
+        credits = "inst\n@{}\n@{}".format(owner, subowner) if subowner != "" else "inst\n@{}".format(owner)
+
+        os.system("wget -q -O temp/{}.jpg {}".format(count, postJson["display_url"]))
+        post = Post(credits, [count])
+        posts.append(post)
+
+        count+=1
+
+    return posts, count
 
 def exportPosts(urls_filename, n):
     posts = [Post("@josselin", [1, 2, 3]), Post("@dreammagazine\n@josselin", [4])]
 
     f = open(urls_filename)
 
+    count = 1
     for url in f:
         url = url[:-1]
-        profilePosts = gatherProfilePosts(url, n)
+        profilePostsJson = gatherProfilePosts(url, n)
+        profile_posts, count = formProfilePosts(profilePostsJson, count)
+        posts.extend(profile_posts)
 
     f.close()
-    
+
     return posts
 
 if __name__ == "__main__":
