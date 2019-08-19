@@ -2,6 +2,7 @@ from args import args
 from config_init import initializeConfig
 from properties import props 
 from export_posts import exportPosts
+import os
 
 if __name__ == "__main__":
     config_filename = args.config
@@ -13,3 +14,5 @@ if __name__ == "__main__":
     posts = exportPosts(urls_filename, props["posts_amount"])
     for post in posts:
         print(post)
+    
+    os.system("rm temp/*.jpg")
