@@ -21,11 +21,16 @@ def get_user_data_json(script_tags):
     except:
         print("Something went wrong with json object gathering!")
 
-def gatherProfilePosts(url, n, ignoreTimestamp):
+def getJsonObject(url):
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'lxml')
     script_tags = (soup.find_all('script'))
     json_obj = get_user_data_json(script_tags)
+
+    return json_obj
+
+def gatherProfilePosts(url, n, ignoreTimestamp):
+    json_obj = getJsonObject(url)
 
     username = json_obj["entry_data"]["ProfilePage"][0]["graphql"]["user"]["username"]
     images = json_obj["entry_data"]["ProfilePage"][0]["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"]
@@ -62,6 +67,14 @@ def gatherInfoAboutSubOwner(text):
 def getTimeDifference(timestamp):
     return (float(time.time())-float(timestamp))/(60*60*24)
 
+def getAllGraphSidecarImages(postJson, owner):
+    postUrl = "https://www.instagram.com/p/{}/".format(postJson["shortcode"])
+    jsonObj = getJsonObject(postUrl)
+
+    images = jsonObj["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]["edge_sidecar_to_children"]["edges"]
+
+    return images
+
 def formProfilePosts(jsonPosts, count):
     posts = []
     for postJson in jsonPosts:
@@ -69,11 +82,25 @@ def formProfilePosts(jsonPosts, count):
         subowner = gatherInfoAboutSubOwner(postJson["edge_media_to_caption"]["edges"][0]["node"]["text"])
         credits = "inst\n@{}\n@{}".format(owner, subowner) if subowner != "" else "inst\n@{}".format(owner)
 
-        os.system("wget -q -O temp/{}.jpg {}".format(count, postJson["display_url"]))
-        post = Post(credits, [count])
+        imagesIndexes = []
+        if postJson["__typename"] == "GraphSidecar":
+            sidecarPostJson = getAllGraphSidecarImages(postJson, owner)
+
+            for image in sidecarPostJson:
+                image = image["node"]
+                os.system("wget -q -O temp/{}.jpg {}".format(count, image["display_url"]))
+
+                imagesIndexes.append(count)
+                count+=1
+
+        else:
+            os.system("wget -q -O temp/{}.jpg {}".format(count, postJson["display_url"]))
+            imagesIndexes.append(count)
+            count+=1
+
+        post = Post(credits, imagesIndexes)
         posts.append(post)
 
-        count+=1
 
     return posts, count
 
