@@ -18,4 +18,4 @@ if __name__ == "__main__":
 
     sendPosts(vk_token_filename, posts)
     
-    #os.system("rm temp/*.jpg")
+    os.system("rm temp/*.jpg")
