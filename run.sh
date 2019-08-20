@@ -1,6 +1,7 @@
 #!/bin/sh
 
 path=/home/wh75er/projects/inst2vk
+cd $path/inst2vk
 
 echo >> $path/logs
 date >> $path/logs
