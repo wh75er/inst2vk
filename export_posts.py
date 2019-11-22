@@ -88,13 +88,13 @@ def formProfilePosts(jsonPosts, count):
 
             for image in sidecarPostJson:
                 image = image["node"]
-                os.system("wget -q -O temp/{}.jpg {}".format(count, image["display_url"]))
+                os.system('wget -q -O temp/{}.jpg "{}"'.format(count, image["display_url"]))
 
                 imagesIndexes.append(count)
                 count+=1
 
         else:
-            os.system("wget -q -O temp/{}.jpg {}".format(count, postJson["display_url"]))
+            os.system('wget -q -O temp/{}.jpg "{}"'.format(count, postJson["display_url"]))
             imagesIndexes.append(count)
             count+=1
 
